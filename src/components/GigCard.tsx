@@ -10,7 +10,7 @@ interface GigCardProps {
   freelancer: string;
   price: number;
   // We restrict categories to specific strings so we can match icons to them
-  category: 'Dev' | 'Design' | 'Audit' | 'Marketing' | 'Commmunity Management';
+  category: 'Dev' | 'Design' | 'Audit' | 'Marketing';
 }
 
 export default function GigCard({ id, title, freelancer, price, category }: GigCardProps) {
