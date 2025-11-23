@@ -9,6 +9,8 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-purple-500 text-white border-[1px] border-solid",
+        colorful:
+          "w-full bg-[#14F195] hover:bg-[#10c479] text-black font-bold py-6 text-lg rounded-lg transition-all",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

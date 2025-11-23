@@ -8,13 +8,14 @@ import { useState } from 'react';
 
 const GIGS = [
   { id: '1', title: 'Discord Community Management', price: 700, category: 'Marketing', freelancer: 'shaxxy_baraka' },
-  { id: '2', title: 'Middlemint code audit', price: 1000, category: 'Audit', freelancer: 'detrapboi' },
+  { id: '2', title: 'Middlemint code audit', price: 1000, category: 'Dev', freelancer: 'detrapboi' },
   { id: '3', title: 'Telegram Community Management', price: 500, category: 'Marketing', freelancer: 'alex_wuff' },
   { id: '4', title: 'wuff brand design', price: 400, category: 'Design', freelancer: '200_men' },
   { id: '5', title: 'Backend developer', price: 1000, category: 'Dev', freelancer: 'busha' },
+  { id: '5', title: 'Tokenomics and white paper audit', price: 1000, category: 'Writing', freelancer: 'busha' },
 ] as const
 
-export default function Home() {
+export default function Find() {
     const [query, setQuery] = useState ("");
     return (
       <div className='min-h-screen'>

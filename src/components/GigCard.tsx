@@ -10,7 +10,7 @@ interface GigCardProps {
   freelancer: string;
   price: number;
   // We restrict categories to specific strings so we can match icons to them
-  category: 'Dev' | 'Design' | 'Audit' | 'Marketing';
+  category: 'Dev' | 'Design' | 'Writing' | 'Marketing'|'Audit';
 }
 
 export default function GigCard({ id, title, freelancer, price, category }: GigCardProps) {
@@ -22,7 +22,7 @@ export default function GigCard({ id, title, freelancer, price, category }: GigC
   
   if (category === 'Dev') { Icon = Code2; colorClass = "text-[#14F195]"; }
   if (category === 'Design') { Icon = Palette; colorClass = "text-[#9945FF]"; }
-  if (category === 'Audit') { Icon = FileText; colorClass = "text-blue-400"; }
+  if (category === 'Writing') { Icon = FileText; colorClass = "text-blue-400"; }
   if (category === 'Marketing') { Icon = Megaphone; colorClass = "text-yellow-400"; }
 
   return (

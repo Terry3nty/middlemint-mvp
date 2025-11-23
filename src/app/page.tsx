@@ -75,8 +75,8 @@ export default function Home() {
           />
           <GigCard 
             id="3"
-            category="Audit"
-            title="Rust Smart Contract Security Review"
+            category="Writing"
+            title="White paper"
             freelancer="sec_audit"
             price={800}
           />

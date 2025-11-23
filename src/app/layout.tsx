@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Middlemint",
   description: "Trustless Freelance Bridge on Solana",
+  keywords:['Web3','web3 jobs','freelance','web3 freelance','solana'],
 };
 
 export default function RootLayout({

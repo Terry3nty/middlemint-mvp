@@ -7,6 +7,7 @@ import { Button } from './ui/button' // or '@/components/ui/button'
 
 const navigation = [
     { name: 'Find Talent', href: '/find' },
+    { name: 'Post a gig', href: '/post' },
     { name: 'My Orders', href: '/dashboard' },
 ]
 
@@ -36,7 +37,7 @@ const Navbar = () => {
                             <div className="relative w-8 h-8">
                                 {/* Using a simple div for the logo 'M' to match prototype style */}
                                 <Image 
-                                    src={'/logo.png'}
+                                    src={'/icon.png'}
                                     alt='middlemint logo'
                                     width={128}
                                     height={128}
