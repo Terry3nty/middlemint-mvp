@@ -7,12 +7,12 @@ import { Search } from 'lucide-react';
 import { useState } from 'react';
 
 const GIGS = [
-  { id: '1', title: 'Discord Community Management', price: 700, category: 'Marketing', freelancer: 'shaxxy_baraka' },
-  { id: '2', title: 'Middlemint code audit', price: 1000, category: 'Dev', freelancer: 'detrapboi' },
-  { id: '3', title: 'Telegram Community Management', price: 500, category: 'Marketing', freelancer: 'alex_wuff' },
-  { id: '4', title: 'wuff brand design', price: 400, category: 'Design', freelancer: '200_men' },
-  { id: '5', title: 'Backend developer', price: 1000, category: 'Dev', freelancer: 'busha' },
-  { id: '5', title: 'Tokenomics and white paper audit', price: 1000, category: 'Writing', freelancer: 'busha' },
+  { id: '1', title: 'Discord Community Management', budget: 700, category: 'Marketing', client: 'shaxxy_baraka' },
+  { id: '2', title: 'Middlemint code audit', budget: 1000, category: 'Dev', client: 'detrapboi' },
+  { id: '3', title: 'Telegram Community Management', budget: 500, category: 'Marketing', client: 'alex_wuff' },
+  { id: '4', title: 'wuff brand design', budget: 400, category: 'Design', client: '200_men' },
+  { id: '5', title: 'Backend developer', budget: 1000, category: 'Dev', client: 'busha' },
+  { id: '5', title: 'Tokenomics and white paper audit', budget: 1000, category: 'Audit', client: 'busha' },
 ] as const
 
 export default function Find() {
@@ -51,8 +51,8 @@ export default function Find() {
                 id={item.id}
                 category={item.category}
                 title={item.title}
-                freelancer={item.freelancer}
-                price={item.price}
+                client={item.client}
+                budget={item.budget}
                 />
             ))}
 

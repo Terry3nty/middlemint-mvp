@@ -63,29 +63,29 @@ export default function Home() {
             id="1"
             category="Dev"
             title="I will build your Solana SPL Token Mint UI"
-            freelancer="alex_rust"
-            price={150}
+            client="alex_rust"
+            budget={150}
           />
           <GigCard 
             id="2"
             category="Design"
             title="Premium 3D Assets for your NFT Collection"
-            freelancer="pixel_art"
-            price={300}
+            client="pixel_art"
+            budget={300}
           />
           <GigCard 
             id="3"
-            category="Writing"
+            category="Audit"
             title="White paper"
-            freelancer="sec_audit"
-            price={800}
+            client="sec_audit"
+            budget={800}
           />
           <GigCard 
             id="4"
             category="Marketing"
             title="Discord Community Management (Monthly)"
-            freelancer="comm_lead"
-            price={400}
+            client="comm_lead"
+            budget={400}
           />
         </div>
       </div>

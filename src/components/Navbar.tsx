@@ -5,28 +5,33 @@ import Link from "next/link"
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ArrowBigLeft, Menu, X } from 'lucide-react'
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useEffect } from 'react';
 
 const navigation = [
-    { name: 'Find Talent', href: '/find' },
+    { name: 'Find Gigs', href: '/find' },
     { name: 'Post a Job', href: '/post' },
     { name: 'My Orders', href: '/dashboard' },
 ]
 
 const Navbar = () => {
     // 1. Wallet State
-    const [btnText, setBtnText] = useState("Connect Wallet");
+    // const [btnText, setBtnText] = useState("Connect Wallet");
+    const [mounted, setMounted] = useState(false);
+    useEffect (() => {setMounted(true) } , []); 
     
     // 2. Mobile Menu State (Open/Closed)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Wallet Logic
-    const handleWalletClick = () => {
-        if (btnText === "Connect Wallet") {
-            setBtnText("8hzyf...gyhs"); 
-        } else {
-            setBtnText("Connect Wallet");
-        }
-    };
+    // const handleWalletClick = () => {
+    //     if (btnText === "Connect Wallet") {
+    //         setBtnText("8hzyf...gyhs"); 
+    //     } else {
+    //         setBtnText("Connect Wallet");
+    //     }
+    // };
 
     // Menu Toggle Logic
     const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -72,14 +77,13 @@ const Navbar = () => {
                     <div className="flex items-center gap-4">
                         
                         {/* Wallet Button (Visible on both) */}
-                        <Button 
-                            variant="default" 
-                            size="default" // Smaller on mobile if needed
-                            onClick={handleWalletClick}
-                            className="bg-[#512da8] hover:bg-[#452690] text-white font-semibold transition-all text-xs sm:text-sm"
-                        >
-                            {btnText}
-                        </Button>
+                        {mounted && (
+                            <WalletMultiButton style={{ 
+                                backgroundColor: '#512da8', // Your purple brand color
+                                height: '40px',
+                                borderRadius: '8px'
+                            }} />
+                        )}
 
                         {/* Mobile Menu Button (Hidden on Desktop) */}
                         <div className="md:hidden">
@@ -102,7 +106,7 @@ const Navbar = () => {
             {/* Mobile Menu Dropdown (Only visible when open) */}
             {isMobileMenuOpen && (
                 <div className="md:hidden border-t border-white/10 bg-[#0f1014]">
-                    <a href='/' className='text-gray-300 hover:text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium' >Home</a>
+                    <Link onClick={() => setIsMobileMenuOpen(false)} href='/' className='text-gray-300 hover:text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium' >Home</Link>
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         {navigation.map((item) => (
                             <Link
