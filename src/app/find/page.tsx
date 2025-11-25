@@ -12,7 +12,7 @@ const GIGS = [
   { id: '3', title: 'Telegram Community Management', budget: 500, category: 'Marketing', client: 'alex_wuff' },
   { id: '4', title: 'wuff brand design', budget: 400, category: 'Design', client: '200_men' },
   { id: '5', title: 'Backend developer', budget: 1000, category: 'Dev', client: 'busha' },
-  { id: '5', title: 'Tokenomics and white paper audit', budget: 1000, category: 'Audit', client: 'busha' },
+  { id: '6', title: 'Tokenomics and white paper audit', budget: 1000, category: 'Audit', client: 'telq_sir' },
 ] as const
 
 export default function Find() {

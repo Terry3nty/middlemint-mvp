@@ -60,13 +60,6 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Mock Data Cards */}
           <GigCard 
-            id="1"
-            category="Dev"
-            title="I will build your Solana SPL Token Mint UI"
-            client="alex_rust"
-            budget={150}
-          />
-          <GigCard 
             id="2"
             category="Design"
             title="Premium 3D Assets for your NFT Collection"
