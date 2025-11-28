@@ -1,9 +1,40 @@
+'use client';
 import React from 'react';
 import Link from 'next/link';
 import GigCard from '@/components/GigCard'; // Check spelling: GigCard, not Gigcard
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
+import { supabase } from '@/supabase';
+import { useState, useEffect } from 'react';
+
+
 
 export default function Home() {
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState (true);
+
+  useEffect (() => {
+    const fetchTrendingJobs = async () => {
+      try{
+        const {data, error} = await supabase
+        .from ('jobs')
+        .select('*')
+        .order('created_at', {ascending: false})
+        .limit (4);
+
+        if(error) throw error
+        setJobs (data || [])
+      }catch (error) {
+        console.error ("No Trending Jobs found", error);
+      } finally{
+        setLoading(false);
+      }
+      };
+
+      fetchTrendingJobs()
+    
+  }, [])
+
+
   return (
     <div className="min-h-screen">
       
@@ -57,31 +88,34 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Mock Data Cards */}
-          <GigCard 
-            id="2"
-            category="Design"
-            title="Premium 3D Assets for your NFT Collection"
-            client="pixel_art"
-            budget={300}
-          />
-          <GigCard 
-            id="3"
-            category="Audit"
-            title="White paper"
-            client="sec_audit"
-            budget={800}
-          />
-          <GigCard 
-            id="4"
-            category="Marketing"
-            title="Discord Community Management (Monthly)"
-            client="comm_lead"
-            budget={400}
-          />
-        </div>
-      </div>
+      {loading ? (
+                <div className="flex justify-center py-20 text-gray-500 gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin" /> Loading trending jobs...
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {jobs.map((job) => (
+                    <GigCard 
+                      key={job.id}
+                      id={job.id}
+                      category={job.category}
+                      title={job.title}
+                      // Truncate wallet address for display
+                      client={job.client_wallet.slice(0, 4) + '...' + job.client_wallet.slice(-4)}
+                      budget={job.budget}
+                    />
+                  ))}
+                  
+                  {/* Fallback if no jobs exist yet */}
+                  {jobs.length === 0 && (
+                    <div className="col-span-full text-center text-gray-500 py-10 bg-[#1a1b23] rounded-xl border border-white/5">
+                      <p className="mb-4">No jobs posted yet.</p>
+                      <Link href="/post" className="text-[#14F195] hover:underline">Be the first to post!</Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
     </div>
   );

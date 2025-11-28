@@ -1,95 +1,51 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  ArrowLeft, 
-  CheckCircle2, 
-  MapPin, 
-  ShieldCheck, 
-  Send, 
-  Bookmark, 
-  Share2, 
-  Twitter, 
-  Linkedin, 
-  Link as LinkIcon 
-} from 'lucide-react';
+import { ArrowLeft, MapPin, ShieldCheck, Calendar, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-
-// 1. Unified Mock Data (Matches Find Page EXACTLY)
-const MOCK_JOBS = [
-  { 
-    id: '1', 
-    title: 'Discord Community Management', 
-    budget: 700, 
-    category: 'Marketing', 
-    client: 'shaxxy_baraka', // Matches the 'freelancer' field from Find page
-    posted: '2 days ago',
-    verified: true,
-    location: 'Remote',
-    description: "We are looking for an experienced Community Manager to take ownership of our DAO Discord. You will be the voice of the project, engaging with holders and managing a team of moderators.",
-    responsibilities: [
-        "Engage with the community daily and answer support tickets",
-        "Organize weekly AMAs and Twitter Spaces",
-        "Manage role assignments and bot configurations"
-    ],
-    skills: ["Discord", "Community", "Web3", "English"],
-  },
-  { 
-    id: '2', 
-    title: 'Middlemint code audit', 
-    budget: 1000, 
-    category: 'Audit', 
-    client: 'detrapboi',
-    posted: '5 hours ago',
-    verified: true,
-    location: 'Remote',
-    description: "We need a second pair of eyes on our Anchor smart contract before mainnet launch. The program handles escrow logic and PDA validation.",
-    responsibilities: [
-        "Review 4 Anchor program files (~800 lines)",
-        "Identify re-entrancy and PDA vulnerabilities",
-        "Provide a PDF report with severity classification"
-    ],
-    skills: ["Rust", "Solana", "Anchor", "Security"],
-  },
-  { 
-    id: '3', 
-    title: 'Discord Community Management', 
-    budget: 500, 
-    category: 'Marketing', 
-    client: 'alex_wuff',
-    posted: '1 day ago',
-    verified: false,
-    location: 'Remote',
-    description: "Need someone to setup bots and roles for a new NFT collection launch.",
-    responsibilities: ["Bot Setup", "Role Config", "Spam Protection"],
-    skills: ["Discord", "Bots"],
-  },
-  { 
-    id: '4', 
-    title: 'wuff brand design', 
-    budget: 400, 
-    category: 'Design', 
-    client: '200_men',
-    posted: '3 days ago',
-    verified: true,
-    location: 'Remote',
-    description: "Need a memecoin logo and banner for our Twitter profile.",
-    responsibilities: ["Logo Design", "Banner Design", "Social Assets"],
-    skills: ["Figma", "Illustrator", "Memes"],
-  },
-];
+import { supabase } from '@/supabase';
 
 export default function JobDetailPage() {
   const params = useParams();
-  const id = params.id;
-  
-  // Find the job
-  const job = MOCK_JOBS.find(j => j.id === id);
+  // State to hold the single job data
+  const [job, setJob] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      if (!params.id) return;
+
+      try {
+        // Fetch the specific row where id matches the URL param
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('*')
+          .eq('id', params.id)
+          .single(); // We expect only one result
+
+        if (error) throw error;
+        setJob(data);
+      } catch (error) {
+        console.error("Error fetching job details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJob();
+  }, [params.id]);
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#0f1014] flex items-center justify-center text-white gap-2">
+        <Loader2 className="w-6 h-6 animate-spin" /> Loading job details...
+    </div>
+  );
 
   if (!job) return (
-    <div className="min-h-screen bg-[#0f1014] flex items-center justify-center text-gray-500">
-        Job not found 😢
+    <div className="min-h-screen bg-[#0f1014] flex flex-col items-center justify-center text-gray-500 gap-4">
+        <p>Job not found 😢</p>
+        <Link href="/find" className="text-[#9945FF] hover:underline">Back to Jobs</Link>
     </div>
   );
 
@@ -113,35 +69,27 @@ export default function JobDetailPage() {
                     <span className="bg-[#9945FF]/10 text-[#9945FF] border border-[#9945FF]/20 px-3 py-1 rounded-full text-xs font-medium">
                         {job.category}
                     </span>
-                    <span className="text-gray-500 text-sm">• Posted {job.posted}</span>
+                    <span className="text-gray-500 text-sm flex items-center gap-1">
+                        <Calendar className="w-3 h-3"/> 
+                        {new Date(job.created_at).toLocaleDateString()}
+                    </span>
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
                     {job.title}
                 </h1>
                 
                 {/* Client Info Bar */}
-                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400 border-y border-white/10 py-4">
+                <div className="flex items-center gap-4 text-sm text-gray-400 border-y border-white/10 py-4">
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs uppercase">
-                            {job.client.substring(0, 2)}
+                            {job.client_wallet ? job.client_wallet.slice(0, 2) : 'CL'}
                         </div>
                         <div>
-                            <span className="block text-white font-medium">@{job.client}</span>
+                            <span className="block text-white font-medium">
+                                @{job.client_wallet ? job.client_wallet.slice(0,6) + '...' : 'Unknown'}
+                            </span>
                             <span className="text-xs">Client</span>
                         </div>
-                    </div>
-                    <div className="h-8 w-[1px] bg-white/10"></div>
-                    
-                    {job.verified && (
-                        <div className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-[#14F195]" />
-                            <span>Payment Verified</span>
-                        </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{job.location}</span>
                     </div>
                 </div>
             </div>
@@ -149,32 +97,18 @@ export default function JobDetailPage() {
             {/* Description & Requirements */}
             <div className="space-y-6 text-gray-300 leading-relaxed">
                 <h3 className="text-xl font-semibold text-white">Job Description</h3>
-                <p>{job.description}</p>
+                <p className="whitespace-pre-wrap">{job.description}</p>
                 
-                {job.responsibilities && (
-                    <>
-                        <h4 className="text-lg font-semibold text-white mt-8 mb-2">Responsibilities:</h4>
-                        <ul className="list-disc pl-5 space-y-2 text-gray-400">
-                            {job.responsibilities.map((item, i) => (
-                                <li key={i}>{item}</li>
-                            ))}
-                        </ul>
-                    </>
+                {/* Application Requirements Box */}
+                {job.requirements && (
+                    <div className="bg-[#1a1b23] p-6 rounded-lg border border-white/10 mt-6">
+                        <h4 className="text-sm font-bold text-white mb-3 uppercase tracking-wider">Required for Application:</h4>
+                        <p className="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed border-l-2 border-[#9945FF] pl-4">
+                            {job.requirements}
+                        </p>
+                    </div>
                 )}
             </div>
-
-            {/* Skills Tags */}
-            <div className="pt-6">
-                <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Skills Required</h4>
-                <div className="flex flex-wrap gap-2">
-                    {job.skills?.map((skill, i) => (
-                        <span key={i} className="bg-[#1a1b23] border border-white/10 px-3 py-1 rounded-md text-sm text-gray-300">
-                            {skill}
-                        </span>
-                    ))}
-                </div>
-            </div>
-
         </div>
 
         {/* RIGHT COLUMN: Sticky Action Card */}
@@ -199,24 +133,12 @@ export default function JobDetailPage() {
                 </div>
 
                 <div className="space-y-3">
-                    <Button className="w-full bg-[#14F195] hover:bg-[#10c479] text-black font-bold py-6 text-lg rounded-lg transition-all shadow-[0_0_20px_rgba(20,241,149,0.2)] flex items-center justify-center gap-2">
+                    <Button 
+                        className="w-full bg-[#14F195] hover:bg-[#10c479] text-black font-bold py-6 text-lg rounded-lg transition-all shadow-[0_0_20px_rgba(20,241,149,0.2)]"
+                        onClick={() => alert("Application logic coming soon!")}
+                    >
                         Apply Now
-                        <Send className="w-5 h-5" />
                     </Button>
-                    
-                    <button className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-medium py-3 rounded-lg transition flex items-center justify-center gap-2">
-                        <Bookmark className="w-4 h-4" />
-                        Save Job
-                    </button>
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-white/10 text-center">
-                    <p className="text-xs text-gray-500 mb-2">Share this job</p>
-                    <div className="flex justify-center gap-4 text-gray-400">
-                        <button className="hover:text-white transition"><Twitter className="w-5 h-5" /></button>
-                        <button className="hover:text-white transition"><Linkedin className="w-5 h-5" /></button>
-                        <button className="hover:text-white transition"><LinkIcon className="w-5 h-5" /></button>
-                    </div>
                 </div>
 
             </div>
