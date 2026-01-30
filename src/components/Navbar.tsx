@@ -1,13 +1,9 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from "next/link"
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { ArrowBigLeft, Menu, X } from 'lucide-react'
-import { useWallet } from '@solana/wallet-adapter-react';
+import { Menu, X } from 'lucide-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useEffect } from 'react';
 
 const navigation = [
     { name: 'Find Gigs', href: '/find' },
@@ -16,44 +12,22 @@ const navigation = [
 ]
 
 const Navbar = () => {
-    // 1. Wallet State
-    // const [btnText, setBtnText] = useState("Connect Wallet");
     const [mounted, setMounted] = useState(false);
-    useEffect (() => {setMounted(true) } , []); 
-    
-    // 2. Mobile Menu State (Open/Closed)
+    useEffect(() => { setMounted(true) }, []);
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    // Wallet Logic
-    // const handleWalletClick = () => {
-    //     if (btnText === "Connect Wallet") {
-    //         setBtnText("8hzyf...gyhs"); 
-    //     } else {
-    //         setBtnText("Connect Wallet");
-    //     }
-    // };
-
-    // Menu Toggle Logic
     const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
     return (
         <nav className='border-b border-white/10 bg-[#0f1014] text-white sticky top-0 z-50 backdrop-blur-md'>
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='flex h-16 items-center justify-between'>
-                    
+
                     {/* Logo Section */}
                     <div className="flex-shrink-0 flex items-center gap-2">
                         <Link href={'/'} className="flex items-center gap-2">
-                            <div className="relative w-8 h-8">
-
-                                {/* <Image 
-                                    src={'/icon.png'}
-                                    alt='middlemint logo'
-                                    width={32}
-                                    height={32}
-                                     className="w-8 h-8 bg-gradient-to-br from-purple-600 to-green-400 rounded-lg flex items-center justify-center font-bold text-white"
-                                /> */}
-                            </div>
+                            <div className="relative w-8 h-8"></div>
                             <h2 className="font-bold text-xl tracking-tight hidden sm:block">Middlemint</h2>
                         </Link>
                     </div>
@@ -62,7 +36,7 @@ const Navbar = () => {
                     <div className='hidden md:block'>
                         <div className="flex items-baseline space-x-4">
                             {navigation.map((item) => (
-                                <Link 
+                                <Link
                                     key={item.name}
                                     href={item.href}
                                     className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition"
@@ -75,11 +49,11 @@ const Navbar = () => {
 
                     {/* Right Side: Wallet & Mobile Toggle */}
                     <div className="flex items-center gap-4">
-                        
+
                         {/* Wallet Button (Visible on both) */}
                         {mounted && (
-                            <WalletMultiButton style={{ 
-                                backgroundColor: '#512da8', // Your purple brand color
+                            <WalletMultiButton style={{
+                                backgroundColor: '#512da8',
                                 height: '40px',
                                 borderRadius: '8px'
                             }} />
@@ -113,7 +87,7 @@ const Navbar = () => {
                                 key={item.name}
                                 href={item.href}
                                 className="text-gray-300 hover:text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
-                                onClick={() => setIsMobileMenuOpen(false)} // Close menu on click
+                                onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 {item.name}
                             </Link>

@@ -18,14 +18,20 @@ export default function AppWalletProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const network = WalletAdapterNetwork.Devnet;
+  // Network is configurable via environment variable
+  const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK === 'mainnet-beta'
+    ? WalletAdapterNetwork.Mainnet
+    : process.env.NEXT_PUBLIC_SOLANA_NETWORK === 'testnet'
+      ? WalletAdapterNetwork.Testnet
+      : WalletAdapterNetwork.Devnet;
+
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
     ],
-    [network],
+    [],
   );
 
   return (
