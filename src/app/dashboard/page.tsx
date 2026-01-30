@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Briefcase, FileCheck, ChevronRight, User } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { supabase } from '@/supabase';
 import { useToast } from '@/components/Toaster';
@@ -30,7 +30,6 @@ export default function DashboardPage() {
       try {
         const wallet = publicKey.toString();
 
-        // 1. Jobs I Posted
         const { data: myJobs } = await supabase
           .from('jobs')
           .select('*')
@@ -39,7 +38,6 @@ export default function DashboardPage() {
 
         if (myJobs) setClientJobs(myJobs);
 
-        // 2. Jobs I Applied To
         const { data: myApps } = await supabase
           .from('applications')
           .select('*, jobs(title, budget)')
@@ -58,7 +56,6 @@ export default function DashboardPage() {
     fetchData();
   }, [publicKey]);
 
-  // Handler: Fetch Applicants for a Job
   const handleViewApplicants = async (jobId: string) => {
     setSelectedJobId(jobId);
     setLoadingApplicants(true);
@@ -83,63 +80,104 @@ export default function DashboardPage() {
 
   if (!publicKey) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center p-8 bg-[#1a1b23] rounded-xl border border-white/10">
-          <p className="text-gray-400 mb-2">Please connect your wallet</p>
-          <p className="text-sm text-gray-500">Use the button in the navbar to connect</p>
+      <div className="min-h-screen flex items-center justify-center pt-16">
+        <div className="text-center p-8 card max-w-md mx-4">
+          <div className="w-16 h-16 rounded-full bg-[var(--accent-purple-dim)] flex items-center justify-center mx-auto mb-4">
+            <User className="w-8 h-8 text-[var(--accent-purple)]" />
+          </div>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Connect Your Wallet</h2>
+          <p className="text-[var(--text-muted)]">
+            Use the wallet button in the navbar to connect and view your dashboard.
+          </p>
         </div>
       </div>
     );
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'open': return 'bg-[var(--accent-green-dim)] text-[var(--accent-green)] border-[var(--accent-green)]/30';
+      case 'in_progress': return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
+      case 'completed': return 'bg-gray-500/10 text-gray-400 border-gray-500/30';
+      case 'pending': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30';
+      case 'accepted': return 'bg-[var(--accent-green-dim)] text-[var(--accent-green)] border-[var(--accent-green)]/30';
+      case 'rejected': return 'bg-red-500/10 text-red-400 border-red-500/30';
+      default: return 'bg-gray-500/10 text-gray-400 border-gray-500/30';
+    }
+  };
+
   return (
-    <div className="min-h-screen p-8 max-w-5xl mx-auto relative">
+    <div className="min-h-screen pt-24 pb-16 px-4 max-w-5xl mx-auto">
 
       {/* Header & Tabs */}
-      <div className="flex flex-col md:flex-row justify-between items-end mb-8">
-        <h1 className="text-3xl font-bold text-white">My Dashboard</h1>
-        <div className="bg-[#1a1b23] p-1 rounded-lg border border-white/10 inline-flex">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">Dashboard</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1">Manage your jobs and applications</p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="p-1 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] inline-flex">
           <button
             onClick={() => setView('client')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${view === 'client' ? 'bg-[#9945FF] text-white' : 'text-gray-400 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${view === 'client'
+                ? 'bg-[var(--accent-purple)] text-white shadow-sm'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
           >
+            <Briefcase className="w-4 h-4" />
             Posted Jobs
           </button>
           <button
             onClick={() => setView('freelancer')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${view === 'freelancer' ? 'bg-[#14F195] text-black font-bold' : 'text-gray-400 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${view === 'freelancer'
+                ? 'bg-[var(--accent-green)] text-black shadow-sm'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
           >
-            My Applications
+            <FileCheck className="w-4 h-4" />
+            Applications
           </button>
         </div>
       </div>
 
-      {loading ? <Loader2 className="animate-spin mx-auto text-gray-500" /> : (
+      {loading ? (
+        <div className="flex justify-center py-20 text-[var(--text-muted)] gap-2">
+          <Loader2 className="animate-spin w-5 h-5" />
+          <span>Loading...</span>
+        </div>
+      ) : (
         <>
           {/* CLIENT VIEW */}
           {view === 'client' && (
             <div className="space-y-4">
               {clientJobs.map((job) => (
-                <div key={job.id} className="bg-[#1a1b23] border border-white/5 p-6 rounded-xl flex justify-between items-center gap-6">
-                  <div>
-                    <h3 className="font-bold text-white text-lg">{job.title}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                      <span>Budget: {job.budget} USDC</span>
-                      <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
-                      <span>Status: {job.status}</span>
+                <div key={job.id} className="card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[var(--text-primary)] text-lg truncate">{job.title}</h3>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--text-muted)] mt-1">
+                      <span>{job.budget} USDC</span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(job.status)}`}>
+                        {job.status}
+                      </span>
                     </div>
                   </div>
                   {job.status === 'open' && (
                     <button
                       onClick={() => handleViewApplicants(job.id)}
-                      className="bg-white/10 text-white px-4 py-2 rounded-lg text-sm hover:bg-white/20 transition border border-white/10"
+                      className="btn btn-secondary text-sm"
                     >
                       View Applicants
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   )}
                 </div>
               ))}
-              {clientJobs.length === 0 && <p className="text-gray-500 text-center">No jobs posted.</p>}
+              {clientJobs.length === 0 && (
+                <div className="text-center py-16 card">
+                  <p className="text-[var(--text-muted)]">No jobs posted yet.</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -147,17 +185,25 @@ export default function DashboardPage() {
           {view === 'freelancer' && (
             <div className="space-y-4">
               {freelancerApps.map((app) => (
-                <div key={app.id} className="bg-[#1a1b23] border border-white/5 p-6 rounded-xl flex justify-between items-center">
-                  <div>
-                    <h3 className="font-bold text-white text-lg">{app.jobs?.title || "Unknown Job"}</h3>
-                    <div className="text-sm text-gray-400">Applied: {new Date(app.created_at).toLocaleDateString()}</div>
+                <div key={app.id} className="card p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[var(--text-primary)] text-lg truncate">
+                      {app.jobs?.title || "Unknown Job"}
+                    </h3>
+                    <p className="text-sm text-[var(--text-muted)] mt-1">
+                      Applied {new Date(app.created_at).toLocaleDateString()}
+                    </p>
                   </div>
-                  <div className="px-4 py-2 rounded-full border bg-yellow-500/10 border-yellow-500/20 text-yellow-500 text-sm font-bold">
+                  <span className={`px-3 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
                     {app.status}
-                  </div>
+                  </span>
                 </div>
               ))}
-              {freelancerApps.length === 0 && <p className="text-gray-500 text-center">No applications yet.</p>}
+              {freelancerApps.length === 0 && (
+                <div className="text-center py-16 card">
+                  <p className="text-[var(--text-muted)]">No applications yet.</p>
+                </div>
+              )}
             </div>
           )}
         </>
@@ -166,44 +212,68 @@ export default function DashboardPage() {
       {/* APPLICANTS MODAL */}
       {selectedJobId && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-[#1a1b23] border border-white/10 w-full max-w-2xl rounded-xl p-6 max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-white">Applicants</h2>
-              <button onClick={() => setSelectedJobId(null)} className="text-gray-400 hover:text-white"><X className="w-6 h-6" /></button>
+          <div className="card w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-[var(--border-subtle)]">
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">Applicants</h2>
+              <button
+                onClick={() => setSelectedJobId(null)}
+                className="p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {loadingApplicants ? <div className="text-center py-10"><Loader2 className="animate-spin mx-auto" /></div> : (
-              <div className="space-y-4">
-                {applicants.map((app) => (
-                  <div key={app.id} className="bg-[#0f1014] p-4 rounded-lg border border-white/5">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                        {app.freelancer_wallet.slice(0, 2)}
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {loadingApplicants ? (
+                <div className="text-center py-10">
+                  <Loader2 className="animate-spin mx-auto text-[var(--text-muted)]" />
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {applicants.map((app) => (
+                    <div key={app.id} className="p-5 rounded-xl bg-[var(--bg-base)] border border-[var(--border-subtle)]">
+
+                      {/* Applicant Header */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-purple)] to-[var(--accent-green)] flex items-center justify-center text-sm font-bold text-white">
+                          {app.freelancer_wallet.slice(0, 2).toUpperCase()}
+                        </div>
+                        <span className="text-sm text-[var(--text-secondary)] font-mono">
+                          @{app.freelancer_wallet.slice(0, 8)}...
+                        </span>
                       </div>
-                      <span className="text-sm text-gray-300 font-mono">@{app.freelancer_wallet.slice(0, 6)}...</span>
-                    </div>
 
-                    <div className="mb-4">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Pitch</p>
-                      <p className="text-gray-300 text-sm">{app.cover_letter}</p>
-                    </div>
+                      {/* Pitch */}
+                      <div className="mb-4">
+                        <p className="text-xs text-[var(--text-muted)] uppercase font-bold mb-2">Pitch</p>
+                        <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{app.cover_letter}</p>
+                      </div>
 
-                    <div className="mb-4">
-                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Requirements</p>
-                      <p className="text-gray-300 text-sm border-l-2 border-[#9945FF] pl-3">{app.requirements_response}</p>
-                    </div>
+                      {/* Requirements Response */}
+                      <div className="mb-5">
+                        <p className="text-xs text-[var(--text-muted)] uppercase font-bold mb-2">Requirements</p>
+                        <p className="text-[var(--text-secondary)] text-sm leading-relaxed border-l-2 border-[var(--accent-purple)] pl-3">
+                          {app.requirements_response}
+                        </p>
+                      </div>
 
-                    <button
-                      onClick={() => handleHire(app.id)}
-                      className="w-full bg-[#14F195] hover:bg-[#10c479] text-black font-bold py-2 rounded-lg text-sm"
-                    >
-                      Hire This Freelancer
-                    </button>
-                  </div>
-                ))}
-                {applicants.length === 0 && <p className="text-gray-500 text-center py-4">No applicants yet.</p>}
-              </div>
-            )}
+                      <button
+                        onClick={() => handleHire(app.id)}
+                        className="btn btn-success w-full"
+                      >
+                        Hire This Freelancer
+                      </button>
+                    </div>
+                  ))}
+                  {applicants.length === 0 && (
+                    <p className="text-[var(--text-muted)] text-center py-8">No applicants yet.</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

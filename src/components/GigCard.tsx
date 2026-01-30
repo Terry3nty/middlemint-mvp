@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Wallet, Code2, Palette, FileText, Megaphone, PenTool } from 'lucide-react';
+import { Wallet, Code2, Palette, FileText, Megaphone, PenTool, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import type { Job } from '@/types';
 
 interface GigCardProps {
@@ -14,52 +14,59 @@ interface GigCardProps {
 export default function GigCard({ id, title, client, budget, category }: GigCardProps) {
 
   // Map categories to icons and colors
-  const categoryConfig: Record<Job['category'], { Icon: typeof Code2; color: string }> = {
-    'Dev': { Icon: Code2, color: 'text-[#14F195]' },
-    'Smart Contract': { Icon: Code2, color: 'text-orange-400' },
-    'Design': { Icon: Palette, color: 'text-[#9945FF]' },
-    'Audit': { Icon: FileText, color: 'text-blue-400' },
-    'Marketing': { Icon: Megaphone, color: 'text-yellow-400' },
-    'Writing': { Icon: PenTool, color: 'text-pink-400' },
+  const categoryConfig: Record<Job['category'], { Icon: typeof Code2; color: string; bg: string }> = {
+    'Dev': { Icon: Code2, color: 'text-[var(--accent-green)]', bg: 'bg-[var(--accent-green-dim)]' },
+    'Smart Contract': { Icon: ShieldCheck, color: 'text-orange-400', bg: 'bg-orange-400/10' },
+    'Design': { Icon: Palette, color: 'text-[var(--accent-purple)]', bg: 'bg-[var(--accent-purple-dim)]' },
+    'Audit': { Icon: FileText, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+    'Marketing': { Icon: Megaphone, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+    'Writing': { Icon: PenTool, color: 'text-pink-400', bg: 'bg-pink-400/10' },
   };
 
-  const { Icon, color } = categoryConfig[category] || { Icon: Code2, color: 'text-gray-400' };
+  const { Icon, color, bg } = categoryConfig[category] || { Icon: Code2, color: 'text-gray-400', bg: 'bg-gray-400/10' };
 
   return (
     <Link href={`/gig/${id}`} className="block group">
-      <div className="bg-[#1a1b23] border border-white/5 rounded-xl overflow-hidden hover:translate-y-[-4px] transition duration-300">
+      <div className="card hover-lift p-5 h-full flex flex-col">
 
-        {/* Job Category Icon */}
-        <div className="h-32 bg-[#1e1e24] relative flex items-center justify-center">
-          <div className={`transition duration-300 group-hover:scale-110 ${color}`}>
-            <Icon className="w-12 h-12" />
+        {/* Header: Category & Arrow */}
+        <div className="flex items-start justify-between mb-4">
+          <div className={`${bg} ${color} p-2.5 rounded-xl`}>
+            <Icon className="w-5 h-5" />
           </div>
-          {/* Badge */}
-          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-xs text-white font-medium">
-            {category}
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <ArrowUpRight className="w-5 h-5 text-[var(--text-muted)]" />
+          </div>
+        </div>
+
+        {/* Badge */}
+        <span className="badge mb-3 w-fit text-xs">
+          {category}
+        </span>
+
+        {/* Title */}
+        <h3 className="font-semibold text-[var(--text-primary)] mb-2 leading-snug line-clamp-2 flex-grow">
+          {title}
+        </h3>
+
+        {/* Client */}
+        <p className="text-xs text-[var(--text-muted)] mb-4">
+          by <span className="text-[var(--text-secondary)]">@{client}</span>
+        </p>
+
+        {/* Divider */}
+        <div className="divider mb-4"></div>
+
+        {/* Footer: Budget */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-[var(--text-muted)] font-medium">Budget</span>
+          <div className="flex items-center gap-1.5">
+            <Wallet className="w-3.5 h-3.5 text-[var(--accent-green)]" />
+            <span className="font-bold text-[var(--text-primary)]">{budget}</span>
+            <span className="text-xs text-[var(--text-muted)]">USDC</span>
           </div>
         </div>
 
-        {/* Job Details */}
-        <div className="p-5">
-          <h3 className="font-bold text-white mb-2 leading-tight min-h-[3rem] line-clamp-2">
-            {title}
-          </h3>
-
-          <p className="text-xs text-gray-500 mb-4">
-            Posted by <span className="text-gray-300">@{client}</span>
-          </p>
-
-          <div className="flex items-center justify-between pt-4 border-t border-white/5">
-            <div className="flex items-center gap-1 text-gray-400">
-              <span className="text-xs">Est. Budget</span>
-            </div>
-            <div className="text-right flex items-center gap-1 text-[#14F195]">
-              <Wallet className="w-3 h-3" />
-              <span className="font-bold text-white">{budget} USDC</span>
-            </div>
-          </div>
-        </div>
       </div>
     </Link>
   );

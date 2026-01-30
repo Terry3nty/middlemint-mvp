@@ -3,6 +3,7 @@ import "./globals.css";
 import AppWalletProvider from "@/components/AppWalletProvider"
 import Navbar from "@/components/Navbar";
 import { ToastProvider } from "@/components/Toaster";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Middlemint",
@@ -19,17 +20,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`font-sans bg-[#0f1014] text-white`}>
-        <ToastProvider>
-          <AppWalletProvider>
-            <Navbar />
-            <main>
-              {children}
-            </main>
-          </AppWalletProvider>
-        </ToastProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased">
+        <ThemeProvider>
+          <ToastProvider>
+            <AppWalletProvider>
+              <Navbar />
+              <main>
+                {children}
+              </main>
+            </AppWalletProvider>
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

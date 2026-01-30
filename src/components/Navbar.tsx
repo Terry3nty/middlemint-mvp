@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from "next/link"
-import { Menu, X } from 'lucide-react'
+import Image from 'next/image'
+import { Menu, X, Search, Briefcase, LayoutDashboard } from 'lucide-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { ThemeToggle } from './ThemeProvider';
 
 const navigation = [
-    { name: 'Find Gigs', href: '/find' },
-    { name: 'Post a Job', href: '/post' },
-    { name: 'My Orders', href: '/dashboard' },
+    { name: 'Find Gigs', href: '/find', icon: Search },
+    { name: 'Post a Job', href: '/post', icon: Briefcase },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
 ]
 
 const Navbar = () => {
@@ -16,85 +18,120 @@ const Navbar = () => {
     useEffect(() => { setMounted(true) }, []);
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 10);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
     return (
-        <nav className='border-b border-white/10 bg-[#0f1014] text-white sticky top-0 z-50 backdrop-blur-md'>
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-strong shadow-lg' : 'bg-transparent'
+            }`}>
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='flex h-16 items-center justify-between'>
 
                     {/* Logo Section */}
-                    <div className="flex-shrink-0 flex items-center gap-2">
-                        <Link href={'/'} className="flex items-center gap-2">
-                            <div className="relative w-8 h-8"></div>
-                            <h2 className="font-bold text-xl tracking-tight hidden sm:block">Middlemint</h2>
-                        </Link>
-                    </div>
+                    <Link href={'/'} className="flex items-center gap-3 group">
+                        <div className="relative w-9 h-9 rounded-lg overflow-hidden">
+                            <Image
+                                src="/icon.png"
+                                alt="Middlemint"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                        <span className="font-bold text-lg tracking-tight hidden sm:block group-hover:text-[var(--accent-primary)] transition-colors">
+                            Middlemint
+                        </span>
+                    </Link>
 
-                    {/* Desktop Navigation (Hidden on Mobile) */}
-                    <div className='hidden md:block'>
-                        <div className="flex items-baseline space-x-4">
-                            {navigation.map((item) => (
+                    {/* Desktop Navigation */}
+                    <div className='hidden md:flex items-center gap-1'>
+                        {navigation.map((item) => {
+                            const Icon = item.icon;
+                            return (
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all duration-200"
                                 >
+                                    <Icon className="w-4 h-4" />
                                     {item.name}
                                 </Link>
-                            ))}
-                        </div>
+                            );
+                        })}
                     </div>
 
-                    {/* Right Side: Wallet & Mobile Toggle */}
-                    <div className="flex items-center gap-4">
+                    {/* Right Side: Theme Toggle, Wallet & Mobile Toggle */}
+                    <div className="flex items-center gap-2">
 
-                        {/* Wallet Button (Visible on both) */}
+                        {/* Theme Toggle */}
+                        <ThemeToggle />
+
+                        {/* Wallet Button */}
                         {mounted && (
                             <WalletMultiButton style={{
-                                backgroundColor: '#512da8',
+                                background: 'linear-gradient(135deg, #00B4D8, #1E3A8A)',
                                 height: '40px',
-                                borderRadius: '8px'
+                                padding: '0 20px',
+                                borderRadius: 'var(--radius-md)',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                fontFamily: 'Inter, sans-serif',
+                                border: 'none',
+                                boxShadow: '0 2px 12px rgba(0, 180, 216, 0.35)',
+                                transition: 'all 0.2s ease',
                             }} />
                         )}
 
-                        {/* Mobile Menu Button (Hidden on Desktop) */}
-                        <div className="md:hidden">
-                            <button
-                                onClick={toggleMenu}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none"
-                            >
-                                {isMobileMenuOpen ? (
-                                    <X className="block h-6 w-6" aria-hidden="true" />
-                                ) : (
-                                    <Menu className="block h-6 w-6" aria-hidden="true" />
-                                )}
-                            </button>
-                        </div>
+                        {/* Mobile Menu Button */}
+                        <button
+                            onClick={toggleMenu}
+                            className="md:hidden p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
+                            aria-label="Toggle menu"
+                        >
+                            {isMobileMenuOpen ? (
+                                <X className="h-5 w-5" />
+                            ) : (
+                                <Menu className="h-5 w-5" />
+                            )}
+                        </button>
                     </div>
 
                 </div>
             </div>
 
-            {/* Mobile Menu Dropdown (Only visible when open) */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden border-t border-white/10 bg-[#0f1014]">
-                    <Link onClick={() => setIsMobileMenuOpen(false)} href='/' className='text-gray-300 hover:text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium' >Home</Link>
-                    <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        {navigation.map((item) => (
+            {/* Mobile Menu Dropdown */}
+            <div className={`md:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+                }`}>
+                <div className="px-4 py-3 space-y-1 glass-strong border-t border-[var(--border-subtle)]">
+                    <Link
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        href='/'
+                        className='flex items-center gap-3 px-4 py-3 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all'
+                    >
+                        Home
+                    </Link>
+                    {navigation.map((item) => {
+                        const Icon = item.icon;
+                        return (
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="text-gray-300 hover:text-white hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
+                                className="flex items-center gap-3 px-4 py-3 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
+                                <Icon className="w-4 h-4" />
                                 {item.name}
                             </Link>
-                        ))}
-                    </div>
+                        );
+                    })}
                 </div>
-            )}
+            </div>
         </nav>
     )
 }

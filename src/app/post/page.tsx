@@ -1,11 +1,19 @@
 'use client';
 import React, { useState } from "react";
-import { Button } from '@/components/ui/button';
-import { ListChecks, AlertTriangle, Loader2 } from 'lucide-react';
+import { Briefcase, ListChecks, AlertTriangle, Loader2, DollarSign } from 'lucide-react';
 import { supabase } from "@/supabase";
 import { useRouter } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useToast } from "@/components/Toaster";
+
+const categories = [
+    { value: 'Dev', label: 'Developer' },
+    { value: 'Smart Contract', label: 'Smart Contract' },
+    { value: 'Design', label: 'Designer' },
+    { value: 'Audit', label: 'Audit' },
+    { value: 'Marketing', label: 'Marketing' },
+    { value: 'Writing', label: 'Writing' },
+];
 
 const Post = () => {
     const router = useRouter();
@@ -21,14 +29,12 @@ const Post = () => {
         requirements: "",
     });
 
-    // Form Handler
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
     const handleSubmitted = async () => {
-        // Validation
         if (!publicKey) {
             toast.error("Please connect your wallet");
             return;
@@ -77,113 +83,137 @@ const Post = () => {
     }
 
     return (
-        <div className="min-h-screen">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center relative z-10">
-                <h1 className="font-bold text-4xl text-white mb-8 tracking-tight text-start">
-                    Create a New Job
-                </h1>
+        <div className="min-h-screen pt-24 pb-16">
+            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                {/* Form */}
-                <div className="bg-[#1a1b23] border border-white/5 p-8 rounded-xl space-y-6">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 rounded-xl bg-[var(--accent-purple-dim)]">
+                            <Briefcase className="w-5 h-5 text-[var(--accent-purple)]" />
+                        </div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
+                            Create a New Job
+                        </h1>
+                    </div>
+                    <p className="text-[var(--text-muted)]">
+                        Fill in the details below to post your gig
+                    </p>
+                </div>
+
+                {/* Form Card */}
+                <div className="card p-6 sm:p-8 space-y-6">
 
                     {/* Title */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2 text-start" htmlFor="title">Gig Title</label>
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                            Gig Title
+                        </label>
                         <input
                             type="text"
-                            className="w-full bg-[#0f1014] border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-[#9945FF] outline-none transition-all"
                             name="title"
-                            placeholder="I want you to ..."
+                            placeholder="e.g. Build a Solana NFT Marketplace"
                             value={formData.title}
                             onChange={handleChange}
+                            className="input"
                         />
                     </div>
 
-                    {/* Category and price */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        {/* category */}
+                    {/* Category and Budget */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                        {/* Category */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2 text-start" htmlFor="category">Category</label>
+                            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                                Category
+                            </label>
                             <select
                                 name="category"
-                                className="w-full bg-[#0f1014] border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-[#9945FF] outline-none"
                                 value={formData.category}
                                 onChange={handleChange}
+                                className="input appearance-none cursor-pointer"
                             >
-                                <option value="Dev">Developer</option>
-                                <option value="Smart Contract">Smart Contract</option>
-                                <option value="Writing">Writing</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Design">Designer</option>
-                                <option value="Audit">Audit</option>
+                                {categories.map(cat => (
+                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                ))}
                             </select>
                         </div>
 
-                        {/* Price */}
+                        {/* Budget */}
                         <div>
-                            <label className="text-start block text-sm font-medium text-gray-400 mb-2">Price (USDC)</label>
+                            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                                Budget
+                            </label>
                             <div className="relative">
+                                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                                 <input
                                     name="budget"
                                     type="number"
                                     placeholder="500"
                                     min="1"
-                                    className="w-full bg-[#0f1014] border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-[#9945FF] outline-none"
                                     value={formData.budget}
                                     onChange={handleChange}
+                                    className="input pl-10 pr-16"
                                 />
-                                <span className="absolute right-4 top-3.5 text-gray-500 text-sm font-bold">USDC</span>
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-muted)]">
+                                    USDC
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label className="text-start block text-sm font-medium text-gray-400 mb-2">Description</label>
+                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                            Description
+                        </label>
                         <textarea
                             name="description"
-                            className="w-full h-32 bg-[#0f1014] border border-gray-700 rounded-lg p-4 text-white focus:border-[#9945FF] outline-none"
-                            placeholder="Describe exactly what the job is about..."
+                            rows={4}
+                            placeholder="Describe the scope of work, deliverables, and timeline..."
                             value={formData.description}
                             onChange={handleChange}
+                            className="input resize-none"
                         ></textarea>
                     </div>
 
-                    {/* Application Requirements */}
-                    <div className="bg-[#9945FF]/5 border border-[#9945FF]/20 p-6 rounded-lg">
+                    {/* Requirements */}
+                    <div className="p-5 rounded-xl bg-[var(--accent-purple-dim)] border border-[var(--accent-purple)]/20">
                         <div className="flex items-center gap-2 mb-2">
-                            <ListChecks className="w-5 h-5 text-[#9945FF]" />
-                            <label className="block text-sm font-bold text-white">Application Requirements</label>
+                            <ListChecks className="w-5 h-5 text-[var(--accent-purple)]" />
+                            <label className="text-sm font-bold text-[var(--text-primary)]">
+                                Application Requirements
+                            </label>
                         </div>
-                        <p className="text-xs text-gray-400 mb-4 flex items-start gap-2">
-                            <AlertTriangle className="w-3 h-3 mt-0.5 text-yellow-500" />
-                            Since there is no chat before hiring, what MUST the freelancer provide when applying?
+                        <p className="text-xs text-[var(--text-muted)] mb-4 flex items-start gap-2">
+                            <AlertTriangle className="w-3.5 h-3.5 mt-0.5 text-yellow-500 flex-shrink-0" />
+                            What must freelancers provide when applying?
                         </p>
                         <textarea
                             name="requirements"
-                            className="w-full h-24 bg-[#0f1014] border border-gray-700 rounded-lg p-4 text-white focus:border-[#9945FF] outline-none placeholder:text-gray-600"
-                            placeholder="- Link to similar past projects&#10;- GitHub profile link&#10;- Estimated time to completion"
+                            rows={3}
+                            placeholder="• Link to similar past projects&#10;• GitHub profile&#10;• Estimated timeline"
                             value={formData.requirements}
                             onChange={handleChange}
+                            className="input resize-none bg-[var(--bg-base)]"
                         ></textarea>
                     </div>
 
                     {/* Submit Button */}
-                    <div className="pt-4">
-                        <Button
-                            className="w-full bg-[#14F195] hover:bg-[#10c479] text-black font-bold py-6 text-lg rounded-lg transition-all"
-                            onClick={handleSubmitted}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <span className="flex items-center gap-2">
-                                    <Loader2 className="w-5 h-5 animate-spin" /> Publishing...
-                                </span>
-                            ) : (
-                                "Post Job"
-                            )}
-                        </Button>
-                    </div>
+                    <button
+                        onClick={handleSubmitted}
+                        disabled={isSubmitting}
+                        className="btn btn-success w-full py-4 text-base"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Publishing...
+                            </>
+                        ) : (
+                            'Post Job'
+                        )}
+                    </button>
 
                 </div>
             </div>

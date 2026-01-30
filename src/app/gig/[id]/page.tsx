@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShieldCheck, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Loader2, Clock, Wallet, User } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/supabase';
@@ -27,7 +26,6 @@ export default function JobDetailPage() {
         requirementsResponse: ""
     });
 
-    // Fetch Job and check application status
     useEffect(() => {
         const fetchJob = async () => {
             if (!params.id) return;
@@ -41,12 +39,10 @@ export default function JobDetailPage() {
                 if (error) throw error;
                 setJob(data);
 
-                // Check if user is the owner
                 if (publicKey && data) {
                     setIsOwner(publicKey.toString() === data.client_wallet);
                 }
 
-                // Check if user has already applied
                 if (publicKey && data) {
                     const { data: existingApp } = await supabase
                         .from('applications')
@@ -66,7 +62,6 @@ export default function JobDetailPage() {
         fetchJob();
     }, [params.id, publicKey]);
 
-    // Handle Application Submit
     const handleApply = async () => {
         if (!publicKey) {
             toast.error("Please connect your wallet first!");
@@ -111,108 +106,171 @@ export default function JobDetailPage() {
         }
     };
 
-    if (loading) return <div className="min-h-screen bg-[#0f1014] flex items-center justify-center text-white"><Loader2 className="animate-spin mr-2" /> Loading...</div>;
-    if (!job) return <div className="min-h-screen bg-[#0f1014] flex justify-center items-center text-white">Job not found</div>;
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                    <Loader2 className="animate-spin w-5 h-5" />
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (!job) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center card p-8 max-w-md mx-4">
+                    <p className="text-[var(--text-primary)] text-xl font-semibold mb-2">Job Not Found</p>
+                    <p className="text-[var(--text-muted)] mb-4">This job may have been removed.</p>
+                    <Link href="/find" className="btn btn-primary">
+                        Browse Jobs
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen p-8 max-w-7xl mx-auto">
-            <Link href="/find" className="flex items-center text-gray-400 hover:text-white mb-8 transition text-sm w-fit">
-                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Jobs
+        <div className="min-h-screen pt-24 pb-16 px-4 max-w-7xl mx-auto">
+
+            {/* Back Link */}
+            <Link
+                href="/find"
+                className="inline-flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors mb-8 text-sm"
+            >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Jobs
             </Link>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                {/* LEFT COLUMN: Job Content */}
-                <div className="lg:col-span-2 space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                {/* LEFT: Job Details */}
+                <div className="lg:col-span-2 space-y-6">
+
+                    {/* Header */}
                     <div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{job.title}</h1>
-                        <div className="flex items-center gap-4 text-sm text-gray-400 border-y border-white/10 py-4">
-                            <span>Client: @{job.client_wallet.slice(0, 6)}...</span>
+                        <span className="badge mb-3">{job.category}</span>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-4">
+                            {job.title}
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-muted)] pb-4 border-b border-[var(--border-subtle)]">
+                            <div className="flex items-center gap-2">
+                                <User className="w-4 h-4" />
+                                <span>@{job.client_wallet.slice(0, 8)}...</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4" />
+                                <span>Posted {new Date(job.created_at).toLocaleDateString()}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="space-y-6 text-gray-300 leading-relaxed">
-                        <h3 className="text-xl font-semibold text-white">Job Description</h3>
-                        <p className="whitespace-pre-wrap">{job.description}</p>
-
-                        {/* Application Requirements Box */}
-                        {job.requirements && (
-                            <div className="bg-[#1a1b23] p-6 rounded-lg border border-white/10 mt-6">
-                                <h4 className="text-sm font-bold text-white mb-3 uppercase tracking-wider">Required for Application:</h4>
-                                <p className="text-sm text-gray-400 whitespace-pre-wrap leading-relaxed border-l-2 border-[#9945FF] pl-4">
-                                    {job.requirements}
-                                </p>
-                            </div>
-                        )}
+                    {/* Description */}
+                    <div className="card p-6">
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Description</h3>
+                        <p className="text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
+                            {job.description || "No description provided."}
+                        </p>
                     </div>
+
+                    {/* Requirements */}
+                    {job.requirements && (
+                        <div className="card p-6 border-[var(--accent-purple)]/20">
+                            <h4 className="text-sm font-bold text-[var(--text-primary)] mb-3 uppercase tracking-wide">
+                                Required for Application
+                            </h4>
+                            <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap leading-relaxed border-l-2 border-[var(--accent-purple)] pl-4">
+                                {job.requirements}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
-                {/* RIGHT COLUMN: Sticky Application Card */}
-                <div className="lg:col-span-1 relative">
-                    <div className="bg-[#1a1b23] border border-white/5 p-6 rounded-xl sticky top-24">
+                {/* RIGHT: Application Card */}
+                <div className="lg:col-span-1">
+                    <div className="card p-6 sticky top-24">
 
-                        <div className="text-center mb-6">
-                            <span className="text-gray-400 text-sm font-medium uppercase tracking-wide">Client Budget</span>
-                            <div className="mt-2">
-                                <span className="text-4xl font-bold text-white">{job.budget}</span>
-                                <span className="text-xl text-gray-500 font-bold ml-1">USDC</span>
+                        {/* Budget */}
+                        <div className="text-center mb-6 pb-6 border-b border-[var(--border-subtle)]">
+                            <span className="text-[var(--text-muted)] text-sm font-medium uppercase tracking-wide">Budget</span>
+                            <div className="mt-2 flex items-center justify-center gap-2">
+                                <Wallet className="w-5 h-5 text-[var(--accent-green)]" />
+                                <span className="text-3xl font-bold text-[var(--text-primary)]">{job.budget}</span>
+                                <span className="text-lg text-[var(--text-muted)]">USDC</span>
                             </div>
                         </div>
 
-                        {/* Show different states based on user context */}
+                        {/* States */}
                         {isOwner ? (
-                            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 text-center">
-                                <p className="text-yellow-500 text-sm font-medium">This is your job posting</p>
+                            <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
+                                <p className="text-yellow-400 text-sm font-medium">This is your job posting</p>
                             </div>
                         ) : hasApplied ? (
-                            <div className="bg-[#14F195]/10 border border-[#14F195]/20 rounded-lg p-4 text-center">
-                                <p className="text-[#14F195] text-sm font-medium">✓ You have already applied</p>
+                            <div className="p-4 rounded-xl bg-[var(--accent-green-dim)] border border-[var(--accent-green)]/20 text-center">
+                                <p className="text-[var(--accent-green)] text-sm font-medium">✓ Application Submitted</p>
                             </div>
                         ) : !isApplying ? (
-                            // STATE 1: "Apply Now" Button
-                            <div className="space-y-3">
-                                <div className="bg-[#14F195]/5 border border-[#14F195]/20 rounded-lg p-4 mb-6 flex gap-3">
-                                    <ShieldCheck className="w-5 h-5 text-[#14F195] flex-shrink-0 mt-0.5" />
-                                    <p className="text-xs text-gray-300">Payment will be <strong>secured in Escrow</strong> when the client hires.</p>
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-xl bg-[var(--accent-green-dim)] flex gap-3">
+                                    <ShieldCheck className="w-5 h-5 text-[var(--accent-green)] flex-shrink-0 mt-0.5" />
+                                    <p className="text-xs text-[var(--text-secondary)]">
+                                        Payment will be <strong className="text-[var(--text-primary)]">secured in Escrow</strong> when the client hires you.
+                                    </p>
                                 </div>
-                                <Button
-                                    className="w-full bg-[#14F195] hover:bg-[#10c479] text-black font-bold py-6 text-lg rounded-lg shadow-[0_0_20px_rgba(20,241,149,0.2)]"
+                                <button
+                                    className="btn btn-success w-full py-4 text-base glow-green"
                                     onClick={() => setIsApplying(true)}
                                 >
                                     Apply Now
-                                </Button>
+                                </button>
                             </div>
                         ) : (
-                            // STATE 2: The Application Form
-                            <div className="space-y-4 animate-in fade-in zoom-in duration-300">
+                            <div className="space-y-4 animate-fade-in">
                                 <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-white font-bold">Your Pitch</h3>
-                                    <button onClick={() => setIsApplying(false)} className="text-xs text-gray-500 hover:text-white">Cancel</button>
+                                    <h3 className="font-bold text-[var(--text-primary)]">Your Pitch</h3>
+                                    <button
+                                        onClick={() => setIsApplying(false)}
+                                        className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                                    >
+                                        Cancel
+                                    </button>
                                 </div>
 
                                 <textarea
-                                    className="w-full h-24 bg-[#0f1014] border border-gray-700 rounded-lg p-3 text-white text-sm focus:border-[#14F195] outline-none"
-                                    placeholder="Why are you a good fit?"
+                                    className="input resize-none"
+                                    rows={4}
+                                    placeholder="Why are you a good fit for this job?"
                                     value={applicationData.coverLetter}
                                     onChange={(e) => setApplicationData(prev => ({ ...prev, coverLetter: e.target.value }))}
                                 ></textarea>
 
-                                <div className="bg-[#9945FF]/10 p-3 rounded border border-[#9945FF]/30">
-                                    <label className="block text-xs font-bold text-[#9945FF] mb-2 uppercase">Requirements Response</label>
+                                <div className="p-4 rounded-xl bg-[var(--accent-purple-dim)] border border-[var(--accent-purple)]/30">
+                                    <label className="block text-xs font-bold text-[var(--accent-purple)] mb-2 uppercase">
+                                        Requirements Response
+                                    </label>
                                     <input
-                                        className="w-full bg-[#0f1014] border border-gray-700 rounded p-2 text-white text-sm focus:border-[#9945FF] outline-none"
-                                        placeholder="Paste links/proof here..."
+                                        className="input bg-[var(--bg-base)]"
+                                        placeholder="Links, proof, or relevant info..."
                                         value={applicationData.requirementsResponse}
                                         onChange={(e) => setApplicationData(prev => ({ ...prev, requirementsResponse: e.target.value }))}
                                     />
                                 </div>
 
-                                <Button
-                                    className="w-full bg-[#14F195] hover:bg-[#10c479] text-black font-bold py-3"
+                                <button
+                                    className="btn btn-success w-full"
                                     onClick={handleApply}
                                     disabled={isSubmitting}
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Submit Application"}
-                                </Button>
+                                    {isSubmitting ? (
+                                        <>
+                                            <Loader2 className="animate-spin w-4 h-4" />
+                                            Submitting...
+                                        </>
+                                    ) : (
+                                        'Submit Application'
+                                    )}
+                                </button>
                             </div>
                         )}
 
